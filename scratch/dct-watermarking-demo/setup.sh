@@ -8,3 +8,5 @@ pip install -r requirements.txt
 
 # Generate keys
 sh keys.sh
+
+streamlit run main.py
