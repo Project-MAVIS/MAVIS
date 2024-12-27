@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pip install -r requirements.txt
+pip install streamlit cryptography opencv-python scipy pywavelets pillow
 
 # Generate keys
 sh keys.sh
