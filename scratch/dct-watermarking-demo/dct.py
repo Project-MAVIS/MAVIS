@@ -5,6 +5,7 @@ from PIL import Image
 from typing import Optional
 from scipy.fftpack import dct, idct
 from pathlib import Path
+from hashlib import sha256
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 
 class WaveletDCTWatermark:
@@ -339,6 +340,18 @@ class WaveletDCTWatermark:
             print(f"Error recovering watermark: {str(e)}")
             raise
         
+    def metadata_hash(self, image: Image.Image):
+        """Generate hash from image metadata"""
+        try:
+            metadata = image.getexif()
+            if metadata:
+                metadata_str = str(metadata).encode('utf-8')
+                return sha256(metadata_str).hexdigest()
+            else:
+                raise ValueError("No metadata found in image")
+        except Exception as e:
+            print(f"Error generating hash: {str(e)}")
+            raise
 # def main():
 #     """Example usage"""
 #     try:
