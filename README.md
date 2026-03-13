@@ -118,22 +118,22 @@ docker-compose up --build
 
 ## 📡 API Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/ping` | GET | Health check endpoint |
-| `/register-user/` | POST | Register a new user |
-| `/register-device/` | POST | Register a device with public key |
-| `/upload-image/` | POST | Upload and verify a signed image |
-| `/verify/` | POST | Verify an image's watermark |
-| `/watermark-image/` | POST | Add watermark to an image |
-| `/watermark-qr-image/` | POST | Watermark with QR-encoded data |
-| `/recover-watermark/` | POST | Extract watermark from image |
-| `/generate-qr/` | POST | Generate QR code for data |
-| `/calculate-hash/` | POST | Calculate image hash |
-| `/sign-hash/` | POST | Sign an image hash |
-| `/extract-exif/` | POST | Extract EXIF metadata |
-| `/images/` | GET | List all images |
-| `/images/<id>/` | GET | Download specific image |
+| Endpoint               | Method | Description                       |
+| ---------------------- | ------ | --------------------------------- |
+| `/ping`                | GET    | Health check endpoint             |
+| `/register-user/`      | POST   | Register a new user               |
+| `/register-device/`    | POST   | Register a device with public key |
+| `/upload-image/`       | POST   | Upload and verify a signed image  |
+| `/verify/`             | POST   | Verify an image's watermark       |
+| `/watermark-image/`    | POST   | Add watermark to an image         |
+| `/watermark-qr-image/` | POST   | Watermark with QR-encoded data    |
+| `/recover-watermark/`  | POST   | Extract watermark from image      |
+| `/generate-qr/`        | POST   | Generate QR code for data         |
+| `/calculate-hash/`     | POST   | Calculate image hash              |
+| `/sign-hash/`          | POST   | Sign an image hash                |
+| `/extract-exif/`       | POST   | Extract EXIF metadata             |
+| `/images/`             | GET    | List all images                   |
+| `/images/<id>/`        | GET    | Download specific image           |
 
 ---
 
@@ -162,17 +162,20 @@ AWS_SECRET_ACCESS_KEY=<your-aws-secret>
 ### ZBar Library Setup
 
 **macOS:**
+
 ```bash
 brew install zbar
 export DYLD_LIBRARY_PATH=$(brew --prefix zbar)/lib:$DYLD_LIBRARY_PATH
 ```
 
 **Ubuntu/Debian:**
+
 ```bash
 sudo apt-get install libzbar0
 ```
 
 **Windows:**
+
 ```bash
 # ZBar is included via pyzbar package
 pip install pyzbar
@@ -277,3 +280,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Django REST Framework](https://www.django-rest-framework.org/) - API framework
 - [pyzbar](https://github.com/NaturalHistoryMuseum/pyzbar) - QR code reading
 - [Pillow](https://python-pillow.org/) - Image processing
+
+## Footnotes
+
+To enable zbar on Mac, run
+
+```sh
+brew install zbar
+export DYLD_LIBRARY_PATH=$(brew --prefix zbar)/lib:$DYLD_LIBRARY_PATH
+```
