@@ -19,7 +19,8 @@ RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
 
 RUN sh scripts/setup.sh
 
-EXPOSE 8000
+# Expose ports for various services
+EXPOSE 3000 5173 7860 8000 8080
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["sleep", "infinity"]
