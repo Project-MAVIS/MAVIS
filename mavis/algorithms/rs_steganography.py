@@ -11,8 +11,8 @@
 from PIL import Image
 from typing import Tuple, Optional, Dict, Any
 
-from steganography_interface import SteganographyMethod
-import algorithms.core.reed_solomon as reed_solomon_core
+from mavis.algorithms.steganography_interface import SteganographyMethod
+import mavis.algorithms.core.reed_solomon as reed_solomon_core
 
 
 class ReedSolomonSteganography(SteganographyMethod):

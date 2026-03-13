@@ -10,12 +10,11 @@
 
 import numpy as np
 from PIL import Image
-from scipy.fftpack import dct, idct
 from typing import Tuple, Optional, Dict, Any
 from qreader import QReader
 
-from steganography_interface import SteganographyMethod
-import algorithms.core.qr_code as qr_code
+from mavis.algorithms.steganography_interface import SteganographyMethod
+import mavis.algorithms.core.qr_code as qr_code
 
 # --- Configuration ---
 # Default parameters (can be overridden by Gradio inputs)
