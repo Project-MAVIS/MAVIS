@@ -200,6 +200,8 @@ make coverage  # Run tests with coverage report
 
 ### Project Structure
 
+The project follows the following structure:[^1]
+
 ```
 Backend/
 ├── backend/           # Django project settings
@@ -289,3 +291,5 @@ To enable zbar on Mac, run
 brew install zbar
 export DYLD_LIBRARY_PATH=$(brew --prefix zbar)/lib:$DYLD_LIBRARY_PATH
 ```
+
+[^1]: The majority of the code in this repository was written during development, in [another repository](https://github.com/Project-MAVIS/Backend), but was later ported to this repository for better organization and to keep the codebase clean.
