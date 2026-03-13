@@ -10,7 +10,7 @@
 
 import numpy as np
 from scipy.fftpack import dct as scipy_dct, idct as scipy_idct
-import cv2
+import cv2 # needs libzbar
 import reedsolo as rs
 from PIL import Image
 from typing import Tuple, Optional, List

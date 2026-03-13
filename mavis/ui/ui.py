@@ -27,7 +27,7 @@ METHODS: Dict[str, SteganographyMethod] = {}
 def register_methods():
     """Register all available steganography methods."""
     methods = [
-        ReedSolomonSteganography(),
+        # ReedSolomonSteganography(),
         QRCodeSteganography(),
     ]
     for method in methods:
