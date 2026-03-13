@@ -39,12 +39,12 @@ class QRCodeSteganography(SteganographyMethod):
     def embed(
         self,
         image: Image.Image,
-        payload: bytes,
+        payload: bytes,  # utf-8 encoded
         settings: Optional[Dict[str, Any]] = None,
     ) -> Tuple[Optional[Image.Image], Any]:
         try:
             config = self.get_default_settings()
-            payload_str = payload.hex()
+            payload_str = payload.decode("utf-8")
             stego_image, status = qr_code.embed_qr_dct_wavelet(
                 original_image=image,
                 alpha=config["alpha"],

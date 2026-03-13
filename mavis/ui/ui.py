@@ -54,7 +54,9 @@ def save_temp_pil(image_pil, suffix=".png"):
 # --- Gradio Backend Functions ---
 
 
-def gradio_embed(original_image_pil, payload_str, method_name):
+def gradio_embed(
+    original_image_pil: Image.Image, payload_str: str, method_name: str
+):
     """Handles the embedding process for Gradio."""
     if original_image_pil is None or not payload_str or not method_name:
         return (
@@ -256,7 +258,9 @@ with gr.Blocks(theme="soft") as demo:
             with gr.Row():
                 with gr.Column(scale=1):
                     embed_input_image = gr.Image(
-                        type="pil", label="1. Original Image"
+                        type="pil",
+                        label="1. Original Image",
+                        sources=["upload", "webcam"],
                     )
                     embed_payload_text = gr.Textbox(
                         label="2. Payload (Text to Embed)", lines=3
@@ -286,7 +290,9 @@ with gr.Blocks(theme="soft") as demo:
             with gr.Row():
                 with gr.Column(scale=1):
                     extract_water_image = gr.Image(
-                        type="pil", label="1. Watermarked Image"
+                        type="pil",
+                        label="1. Watermarked Image",
+                        sources=["upload", "webcam"],
                     )
                     extract_method_dd = gr.Dropdown(
                         choices=method_choices,
@@ -310,10 +316,14 @@ with gr.Blocks(theme="soft") as demo:
             with gr.Row():
                 with gr.Column(scale=1):
                     bench_orig_image = gr.Image(
-                        type="pil", label="1. Original Image"
+                        type="pil",
+                        label="1. Original Image",
+                        sources=["upload", "webcam"],
                     )
                     bench_water_image = gr.Image(
-                        type="pil", label="2. Watermarked Image"
+                        type="pil",
+                        label="2. Watermarked Image",
+                        sources=["upload", "webcam"],
                     )
                     bench_orig_payload = gr.Textbox(
                         label="3. Original Payload (Exact text embedded)", lines=3
