@@ -17,7 +17,6 @@ import json
 from typing import Dict
 
 from mavis.algorithms.steganography_interface import SteganographyMethod
-from mavis.algorithms.rs_steganography import ReedSolomonSteganography
 from mavis.algorithms.qr_steganography import QRCodeSteganography
 
 # --- Registry of available steganography methods ---
@@ -91,6 +90,76 @@ def gradio_embed(
             )
     else:
         return None, None, f"Embedding Failed:\n{status}"
+
+
+def compress_image(image_pil: Image.Image, quality: int = 75) -> Image.Image:
+    """Compress an image using JPEG compression and return as PIL Image."""
+    import io
+
+    # Convert to RGB if necessary (JPEG doesn't support alpha channel)
+    if image_pil.mode in ("RGBA", "P"):
+        image_pil = image_pil.convert("RGB")
+
+    # Compress using JPEG
+    buffer = io.BytesIO()
+    image_pil.save(buffer, format="JPEG", quality=quality)
+    buffer.seek(0)
+
+    # Load back as PIL Image
+    compressed_image = Image.open(buffer).copy()
+    buffer.close()
+
+    return compressed_image
+
+
+def gradio_compress_and_extract(
+    watermarked_image_pil, quality: int, method_name: str, original_payload_str: str
+):
+    """Compress the watermarked image and attempt to extract the payload."""
+    if watermarked_image_pil is None or not method_name:
+        return (
+            None,
+            None,
+            None,
+            "Missing input: Please provide watermarked image and method.",
+        )
+
+    if method_name not in METHODS:
+        return None, None, None, f"Error: Unknown method '{method_name}'."
+
+    method = METHODS[method_name]
+
+    # Compress the image
+    compressed_image = compress_image(watermarked_image_pil, quality=int(quality))
+
+    # Extract payload from compressed image
+    extracted_payload, extract_status = method.extract(compressed_image)
+
+    # Convert bytes to string for display
+    extracted_payload_str = None
+    if extracted_payload is not None:
+        try:
+            extracted_payload_str = extracted_payload.decode("utf-8")
+        except UnicodeDecodeError:
+            extracted_payload_str = extracted_payload.hex()
+
+    # Calculate metrics if original payload was provided
+    metrics_str = None
+    if original_payload_str:
+        orig_np = np.array(watermarked_image_pil.convert("RGB"))
+        comp_np = np.array(compressed_image.convert("RGB"))
+
+        metrics = calculate_metrics(
+            orig_np, comp_np, original_payload_str, extracted_payload
+        )
+        metrics["compression_quality"] = int(quality)
+        metrics_str = json.dumps(metrics, indent=2)
+
+    status = (
+        f"Compression Quality: {quality}%\n\nExtraction Status:\n{extract_status}"
+    )
+
+    return compressed_image, extracted_payload_str, metrics_str, status
 
 
 def calculate_metrics(
@@ -245,7 +314,7 @@ def gradio_extract(watermarked_image_pil, method_name):
 # --- Build Gradio UI ---
 
 with gr.Blocks(theme="soft") as demo:
-    gr.Markdown("# Image Watermarking: Embedding, Extraction & Benchmarking")
+    gr.Markdown("# Project MAVIS: Embedding, Extraction & Benchmarking")
 
     method_choices = list(METHODS.keys())
 
@@ -348,6 +417,52 @@ with gr.Blocks(theme="soft") as demo:
                         label="Status", lines=5, interactive=False
                     )
 
+        # --- Compression Tolerance Tab ---
+        with gr.TabItem("Compression Tolerance"):
+            gr.Markdown(
+                "Test the robustness of the embedded watermark against JPEG compression. "
+                "Upload a watermarked image, select compression quality, and check if the payload can still be extracted."
+            )
+            with gr.Row():
+                with gr.Column(scale=1):
+                    compress_water_image = gr.Image(
+                        type="pil",
+                        label="1. Watermarked Image",
+                        sources=["upload", "webcam"],
+                    )
+                    compress_quality_slider = gr.Slider(
+                        minimum=1,
+                        maximum=100,
+                        value=75,
+                        step=1,
+                        label="2. JPEG Compression Quality (%)",
+                        info="Lower values = more compression = more degradation",
+                    )
+                    compress_method_dd = gr.Dropdown(
+                        choices=method_choices,
+                        label="3. Method Used for Embedding",
+                        value=method_choices[0] if method_choices else None,
+                    )
+                    compress_orig_payload = gr.Textbox(
+                        label="4. Original Payload (optional, for metrics)",
+                        lines=2,
+                        placeholder="Enter the original payload to calculate accuracy metrics",
+                    )
+                    compress_button = gr.Button(
+                        "Compress & Extract", variant="primary"
+                    )
+                with gr.Column(scale=1):
+                    compress_output_image = gr.Image(
+                        type="pil", label="Compressed Image"
+                    )
+                    compress_extracted_payload = gr.Textbox(
+                        label="Extracted Payload", lines=5, interactive=False
+                    )
+                    compress_metrics_display = gr.JSON(label="Metrics")
+                    compress_status_text = gr.Textbox(
+                        label="Status", lines=5, interactive=False
+                    )
+
     # --- Connect Components ---
     embed_button.click(
         fn=gradio_embed,
@@ -370,6 +485,22 @@ with gr.Blocks(theme="soft") as demo:
             bench_method_dd,
         ],
         outputs=[bench_extracted_payload, bench_metrics_display, bench_status_text],
+    )
+
+    compress_button.click(
+        fn=gradio_compress_and_extract,
+        inputs=[
+            compress_water_image,
+            compress_quality_slider,
+            compress_method_dd,
+            compress_orig_payload,
+        ],
+        outputs=[
+            compress_output_image,
+            compress_extracted_payload,
+            compress_metrics_display,
+            compress_status_text,
+        ],
     )
 
 # --- Launch the Gradio App ---

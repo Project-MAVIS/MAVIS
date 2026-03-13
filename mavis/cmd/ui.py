@@ -60,7 +60,7 @@ def main():
     try:
         from mavis.ui.ui import demo
     except ImportError as e:
-        print(f"Error: Failed to import UI module: {e}", file=sys.stderr)
+        print(f"Error: Failed to port UI module: {e}", file=sys.stderr)
         print("Make sure all dependencies are installed.", file=sys.stderr)
         sys.exit(1)
 
