@@ -1,2 +1,5 @@
 .venv
 __pycache__
+
+# MAVIS demo data (SQLite database and blob storage)
+mavis/demo/.mavis_demo_data/

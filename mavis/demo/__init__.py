@@ -18,14 +18,20 @@ the complete workflow of image capture, signing, certification, and verification
 from .secure_enclave import SecureEnclave
 from .crypto import CryptoUtils
 from .database import DemoDatabase
-from .certificate_utils import CertificateUtils
+from .certificate_utils import CertificateUtils, DemoCertificate
 from .exif_utils import ExifUtils
+from .capture_workflow import CaptureWorkflow, WorkflowResult
+from .demo_ui import create_demo, launch_demo
 
 __all__ = [
     "SecureEnclave",
     "CryptoUtils",
     "DemoDatabase",
     "CertificateUtils",
+    "DemoCertificate",
     "ExifUtils",
+    "CaptureWorkflow",
+    "WorkflowResult",
+    "create_demo",
+    "launch_demo",
 ]
-
