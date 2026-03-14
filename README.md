@@ -1,7 +1,9 @@
-# MAVIS
+# Project MAVIS
+
+![MAVIS Logo](./assets/header.png)
 
 <p align="center">
-  <strong>Media Authentication and Verification with Invisible Signatures</strong>
+  <strong>Media Authentication, Verification and Integrity System</strong>
 </p>
 
 <p align="center">
@@ -12,49 +14,28 @@
 
 ---
 
-## 📋 Overview
+MAVIS (Media Authentication, Verification and Integrity System) is an image steganography toolkit that uses advanced **wavelet-based DCT watermarking** combined with **QR codes**, **Reed-Solomon Encoding** and **GAN-based watermarking** to embed invisible, tamper-resistant data into images. The project provides a web-based Gradio UI for embedding, extracting, and benchmarking watermarks.
 
-MAVIS (Media Authentication and Verification with Invisible Signatures) is an image steganography toolkit that uses advanced **wavelet-based DCT watermarking** combined with **QR codes** to embed invisible, tamper-resistant data into images. The project provides a web-based Gradio UI for embedding, extracting, and benchmarking watermarks.
+> [!NOTE]  
+> We are still awaiting the publish of the research paper behind this project.
 
 ### Key Features
 
-- 🔐 **Cryptographic Image Signing** - Device-level image hash signing with RSA key pairs
-- 🌊 **Wavelet-DCT Watermarking** - Resilient invisible watermarks that survive compression and social media sharing
-- 📱 **QR Code Embedding** - Encodes provenance data in QR codes embedded as watermarks
-- 📜 **Certificate Generation** - Creates tamper-proof certificates with timestamps, user info, and device data
-- ✅ **Image Verification** - Extracts and validates embedded watermarks and certificates
-- 🗄️ **Cloud Storage Integration** - Supports Supabase/S3 storage backends
+- 🔐 **Cryptographic Image Signing** - Device-level image hash signing with RSA key pairs.
+- 🌊 **Wavelet-DCT Watermarking** - Resilient invisible watermarks that survive compression and social media sharing.
+- 📱 **QR Code Embedding** - Encodes provenance data in QR codes embedded as watermarks.
+- 📜 **Certificate Generation** - Creates tamper-proof certificates with timestamps, user info, and device data.
+- ✅ **Image Verification** - Extracts and validates embedded watermarks and certificates.
 
 ---
 
 ## 🏗️ Architecture
 
-```
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│   Mobile App    │────▶│   MAVIS Server   │────▶│  Cloud Storage  │
-│  (Photographer) │     │   (Django API)   │     │   (Supabase)    │
-└─────────────────┘     └──────────────────┘     └─────────────────┘
-        │                        │
-        │ 1. Capture & Sign      │ 2. Verify & Watermark
-        │    Image Hash          │    with Certificate
-        ▼                        ▼
-┌─────────────────┐     ┌──────────────────┐
-│  Device Secure  │     │    Wavelet-DCT   │
-│    Enclave      │     │   Watermarking   │
-└─────────────────┘     └──────────────────┘
-```
-
-### Watermarking Flow
-
-1. **Image Upload** - User uploads an image through the Gradio UI
-2. **Payload Input** - User provides text payload to embed
-3. **QR Generation** - Payload is encoded into a QR code
-4. **Watermark Embedding** - QR code is embedded using DWT-DCT transform
-5. **Download** - Watermarked image is available for download
+![MAVIS Architecture](./assets/architecture.png)
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -68,14 +49,14 @@ MAVIS (Media Authentication and Verification with Invisible Signatures) is an im
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone git@github.com:Project-MAVIS/MAVIS.git
 cd MAVIS
 
 # Install dependencies
 make install
 
 # Start the Gradio web UI
-make run
+python3 -m mavis.demo.demo_ui
 ```
 
 The UI will be available at `http://localhost:7860`
@@ -100,7 +81,7 @@ python -m mavis.cmd.ui
 
 ### ZBar Library Setup
 
-ZBar is required for QR code detection during extraction.
+ZBar is required for opencv2 to detect Reed-Solomon code during extraction.
 
 **macOS:**
 
@@ -262,6 +243,8 @@ The benchmark tab calculates:
 
 - **Omkar Wagholikar** - [omkarrwagholikar@gmail.com](mailto:omkarrwagholikar@gmail.com)
 - **Shantanu Wable** - [shantanuwable2003@gmail.com](mailto:shantanuwable2003@gmail.com)
+- **Soaham Pimparkar** - [soahampimparkar@gmail.com](mailto:soahampimparkar@gmail.com)
+- **Chinmay Patil** - [crpatil1901@gmail.com](mailto:crpatil1901@gmail.com)
 
 ---
 
