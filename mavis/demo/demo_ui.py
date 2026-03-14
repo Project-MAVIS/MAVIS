@@ -107,12 +107,17 @@ def process_image_callback(
     else:
         cert_details = "No certificate generated"
 
-    # Save output image for download
+    # Save output image for download (preserving EXIF)
     download_path = None
     if result.output_image:
         temp_dir = tempfile.mkdtemp()
         download_path = os.path.join(temp_dir, "certified_image.jpg")
-        result.output_image.save(download_path, format="JPEG", quality=95)
+        # Preserve EXIF data when saving
+        exif_data = result.output_image.info.get("exif")
+        save_kwargs = {"format": "JPEG", "quality": 95}
+        if exif_data:
+            save_kwargs["exif"] = exif_data
+        result.output_image.save(download_path, **save_kwargs)
 
     return result.output_image, workflow_log, cert_details, download_path
 

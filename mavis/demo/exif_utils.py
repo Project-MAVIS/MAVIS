@@ -92,6 +92,52 @@ class ExifUtils:
         return Image.open(output)
 
     @staticmethod
+    def _extract_from_exif_bytes(
+        exif_bytes: bytes,
+    ) -> Tuple[Optional[str], Optional[str], Optional[str]]:
+        """Helper to extract certificate from raw EXIF bytes."""
+        try:
+            exif_dict = piexif.load(exif_bytes)
+        except Exception:
+            return None, None, "Failed to parse EXIF bytes"
+
+        # Check if Exif IFD exists
+        if "Exif" not in exif_dict or not exif_dict["Exif"]:
+            return None, None, "No Exif IFD found in image"
+
+        # Look for UserComment in Exif IFD
+        if piexif.ExifIFD.UserComment not in exif_dict["Exif"]:
+            return None, None, "No UserComment field in EXIF"
+
+        user_comment_raw = exif_dict["Exif"][piexif.ExifIFD.UserComment]
+
+        # Handle bytes or string
+        if isinstance(user_comment_raw, bytes):
+            # Skip charset identifier (first 8 bytes for ASCII)
+            if user_comment_raw.startswith(b"ASCII\x00\x00\x00"):
+                user_comment = user_comment_raw[8:].decode("utf-8")
+            else:
+                user_comment = user_comment_raw.decode("utf-8", errors="ignore")
+        else:
+            user_comment = str(user_comment_raw)
+
+        # Check for MAVIS marker
+        if not user_comment.startswith(MAVIS_MARKER):
+            return None, None, "No MAVIS certificate marker found"
+
+        # Parse JSON data
+        json_str = user_comment[len(MAVIS_MARKER) :]
+        mavis_data = json.loads(json_str)
+
+        encrypted_cert = mavis_data.get("encrypted_cert")
+        cert_hash = mavis_data.get("cert_hash")
+
+        if not encrypted_cert:
+            return None, None, "No encrypted certificate in MAVIS data"
+
+        return encrypted_cert, cert_hash, None
+
+    @staticmethod
     def extract_certificate_from_exif(
         image: Image.Image,
     ) -> Tuple[Optional[str], Optional[str], Optional[str]]:
@@ -106,43 +152,52 @@ class ExifUtils:
             If extraction fails, returns (None, None, error_message)
         """
         try:
-            # Try to get EXIF data
-            exif_data = image.getexif()
+            # Method 1: Try to get EXIF from image.info (most reliable for in-memory images)
+            exif_info = image.info.get("exif")
+            if exif_info and isinstance(exif_info, bytes):
+                result = ExifUtils._extract_from_exif_bytes(exif_info)
+                if result[0] is not None:
+                    return result
 
-            if not exif_data:
-                return None, None, "No EXIF data found in image"
+            # Method 2: If image has a filename, try loading directly from file
+            filename = getattr(image, "filename", None)
+            if filename:
+                try:
+                    exif_dict = piexif.load(filename)
+                    if "Exif" in exif_dict and exif_dict["Exif"]:
+                        if piexif.ExifIFD.UserComment in exif_dict["Exif"]:
+                            # Reconstruct exif bytes and parse
+                            exif_bytes = piexif.dump(exif_dict)
+                            result = ExifUtils._extract_from_exif_bytes(exif_bytes)
+                            if result[0] is not None:
+                                return result
+                except Exception:
+                    pass  # Fall through to next method
 
-            # Look for UserComment
-            if piexif.ExifIFD.UserComment not in exif_data:
-                return None, None, "No UserComment field in EXIF"
+            # Method 3: Try saving to bytes and reloading
+            # This works when the image was opened from a file with EXIF
+            img_bytes = BytesIO()
+            img_to_save = image
+            if image.mode == "RGBA":
+                img_to_save = image.convert("RGB")
 
-            user_comment_raw = exif_data[piexif.ExifIFD.UserComment]
+            # Try saving with existing EXIF if available
+            save_kwargs = {"format": "JPEG", "quality": 95}
+            if exif_info:
+                save_kwargs["exif"] = exif_info
 
-            # Handle bytes or string
-            if isinstance(user_comment_raw, bytes):
-                # Skip charset identifier (first 8 bytes for ASCII)
-                if user_comment_raw.startswith(b"ASCII\x00\x00\x00"):
-                    user_comment = user_comment_raw[8:].decode("utf-8")
-                else:
-                    user_comment = user_comment_raw.decode("utf-8", errors="ignore")
-            else:
-                user_comment = str(user_comment_raw)
+            img_to_save.save(img_bytes, **save_kwargs)
+            img_bytes.seek(0)
 
-            # Check for MAVIS marker
-            if not user_comment.startswith(MAVIS_MARKER):
-                return None, None, "No MAVIS certificate marker found"
+            # Try to load EXIF from the saved bytes
+            try:
+                result = ExifUtils._extract_from_exif_bytes(img_bytes.getvalue())
+                if result[0] is not None:
+                    return result
+            except Exception:
+                pass
 
-            # Parse JSON data
-            json_str = user_comment[len(MAVIS_MARKER) :]
-            mavis_data = json.loads(json_str)
-
-            encrypted_cert = mavis_data.get("encrypted_cert")
-            cert_hash = mavis_data.get("cert_hash")
-
-            if not encrypted_cert:
-                return None, None, "No encrypted certificate in MAVIS data"
-
-            return encrypted_cert, cert_hash, None
+            return None, None, "No MAVIS certificate found in image EXIF"
 
         except json.JSONDecodeError as e:
             return None, None, f"Failed to parse MAVIS data: {e}"
