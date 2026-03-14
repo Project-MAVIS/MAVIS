@@ -76,83 +76,12 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -e .
 
 # Start the Gradio web UI
-python -m mavis.cmd.ui
-```
-
-### ZBar Library Setup
-
-ZBar is required for opencv2 to detect Reed-Solomon code during extraction.
-
-**macOS:**
-
-```bash
-brew install zbar
-export DYLD_LIBRARY_PATH=$(brew --prefix zbar)/lib:$DYLD_LIBRARY_PATH
-```
-
-**Ubuntu/Debian:**
-
-```bash
-sudo apt-get install libzbar0
-```
-
-**Windows:**
-
-ZBar is included via the `pyzbar` package - no additional installation needed.
-
----
-
-## 🖥️ Usage
-
-### Web UI
-
-Launch the Gradio interface:
-
-```bash
-# Using make
-make run
-
-# Or directly
-python -m mavis.cmd.ui
-
-# With options
-python -m mavis.cmd.ui --host 0.0.0.0 --port 8080 --share
-```
-
-**UI Options:**
-
-| Option    | Description                    | Default     |
-| --------- | ------------------------------ | ----------- |
-| `--host`  | Host to bind to                | `127.0.0.1` |
-| `--port`  | Port to bind to                | `7860`      |
-| `--share` | Create a public shareable link | `false`     |
-| `--debug` | Enable debug mode              | `false`     |
-
-### UI Tabs
-
-1. **Embed Watermark** - Upload an image, enter payload text, and generate a watermarked image
-2. **Extract Payload** - Upload a watermarked image to extract the hidden payload
-3. **Benchmark** - Compare original and watermarked images, calculate quality metrics (PSNR, SSIM, BER)
-
----
-
-## 🧪 Development
-
-### Available Make Commands
-
-```bash
-make help        # Show all available commands
-make install     # Install all dependencies (including dev and test)
-make sync        # Sync dependencies with pyproject.toml
-make run         # Run the Gradio app
-make run-gradio  # Alias for run
-make format      # Format code with black
-make lint        # Run code quality checks
-make test        # Run tests with pytest
-make clean       # Clean temporary files and caches
+python3 -m mavis.demo.demo_ui
 ```
 
 ### Project Structure
+
+This repository contains only the final codebase of the project[^1].
 
 ```
 MAVIS/
@@ -261,5 +190,30 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [QReader](https://github.com/Eric-Canas/qreader) - QR code reading
 - [Pillow](https://python-pillow.org/) - Image processing
 - [scikit-image](https://scikit-image.org/) - Image quality metrics.
+
+## Footnotes
+
+### ZBar Library Setup
+
+ZBar is required for opencv2 to detect Reed-Solomon code during extraction.
+
+**macOS:**
+
+```bash
+brew install zbar
+export DYLD_LIBRARY_PATH=$(brew --prefix zbar)/lib:$DYLD_LIBRARY_PATH
+```
+
+**Ubuntu/Debian:**
+
+```bash
+sudo apt-get install libzbar0
+```
+
+**Windows:**
+
+ZBar is included via the `pyzbar` package - no additional installation needed.
+
+---
 
 [^1]: The majority of the code in this repository was written during development, in [another repository](https://github.com/Project-MAVIS/Backend), but was later ported to this repository for better organization and to keep the codebase clean.
