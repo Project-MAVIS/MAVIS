@@ -2,9 +2,13 @@
 
 ![MAVIS Logo](./assets/header.png)
 
-<p align="center">
-  <strong>Media Authentication, Verification and Integrity System</strong>
-</p>
+<div align="center">
+
+### Media Authentication, Verification and Integrity System
+
+[Authors](#authors) | [Presentation](https://www.canva.com/design/DAGiF3nVTpM/yGptrdL7Is37iiv2_pue8g/edit?utm_content=DAGiF3nVTpM&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton) 
+
+</div>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.10+-blue.svg" alt="Python Version">
@@ -29,7 +33,7 @@ MAVIS (Media Authentication, Verification and Integrity System) is an image steg
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ![MAVIS Architecture](./assets/architecture.png)
 
@@ -79,6 +83,65 @@ pip install -e .
 python3 -m mavis.demo.demo_ui
 ```
 
+---
+
+## Usage
+
+MAVIS provides a Gradio-based demo UI with two main workflows: **Image Capture & Certification** and **Image Verification**.
+
+### Tab 1: Capture & Certify
+
+This tab emulates an iPhone's camera and Secure Enclave to demonstrate the full image certification process:
+
+1. **Device Registration**
+   - The system emulates an iPhone's Secure Enclave, generating an RSA key pair
+   - The private key remains inaccessible (hardware-protected), only the public key is shared
+   - A unique User ID and Device ID are assigned to the registered device
+
+2. **Image Capture & Signing**
+   - User captures/uploads an image (emulating an iPhone camera)
+   - Before the image becomes accessible, it is signed using the Secure Enclave's private key
+   - The signed image hash + public key are sent to the MAVIS server
+
+3. **Server-Side Processing**
+   - The server verifies the signature using the public key to confirm image integrity
+   - A certificate is created containing: timestamp, image ID, user ID, device ID, username, and device name
+   - The certificate is hashed and converted to a QR code
+
+4. **Watermark Embedding**
+   - The QR code (containing the certificate hash) is invisibly embedded into the image using DWT-DCT steganography
+   - The encrypted certificate is stored in the image's EXIF metadata
+   - Both the original image and certificate are stored in the server database
+
+5. **Output**
+   - The certified image is returned to the user
+   - This image can be shared anywhere while retaining its provenance data
+
+### Tab 2: Verify Image
+
+This tab allows users to verify the authenticity of any image:
+
+1. **Upload Image**
+   - User uploads an image to the verification tab
+
+2. **Primary Verification (EXIF + QR)**
+   - Server extracts the encrypted certificate from the EXIF metadata
+   - Server decrypts and parses the certificate
+   - Server extracts the certificate hash from the embedded QR watermark
+   - If the extracted hash matches the certificate hash → **Image Verified ✓**
+
+3. **WhatsApp Scenario (Metadata Stripped)**
+   - If EXIF metadata is missing (e.g., image was shared via WhatsApp)
+   - The QR code hash is extracted from the pixels
+   - This hash is used to look up the original certificate and image from the database
+   - The server returns:
+     - The uploaded image
+     - The original certified image
+     - The certificate information
+   - User can compare and verify authenticity
+
+---
+
 ### Project Structure
 
 This repository contains only the final codebase of the project[^1].
@@ -108,9 +171,7 @@ MAVIS/
 └── uv.lock                     # Dependency lock file
 ```
 
----
-
-## 🔬 Technical Details
+## Technical Details
 
 ### Watermarking Algorithm
 
@@ -158,17 +219,7 @@ The benchmark tab calculates:
 
 ---
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
-
-## 👥 Authors
+## Authors
 
 - **Omkar Wagholikar** - [omkarrwagholikar@gmail.com](mailto:omkarrwagholikar@gmail.com)
 - **Shantanu Wable** - [shantanuwable2003@gmail.com](mailto:shantanuwable2003@gmail.com)
@@ -177,13 +228,13 @@ The benchmark tab calculates:
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [PyWavelets](https://pywavelets.readthedocs.io/) - Wavelet transforms
 - [Gradio](https://gradio.app/) - Web UI framework
@@ -213,7 +264,5 @@ sudo apt-get install libzbar0
 **Windows:**
 
 ZBar is included via the `pyzbar` package - no additional installation needed.
-
----
 
 [^1]: The majority of the code in this repository was written during development, in [another repository](https://github.com/Project-MAVIS/Backend), but was later ported to this repository for better organization and to keep the codebase clean.
