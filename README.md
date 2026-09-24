@@ -21,7 +21,7 @@
 MAVIS (Media Authentication, Verification and Integrity System) is an image steganography toolkit that uses advanced **wavelet-based DCT watermarking** combined with **QR codes**, **Reed-Solomon Encoding** and **GAN-based watermarking** to embed invisible, tamper-resistant data into images. The project provides a web-based Gradio UI for embedding, extracting, and benchmarking watermarks.
 
 > [!NOTE]  
-> We are still awaiting the publish of our research paper behind this project which was presented at the MIND 2025 conference.
+> This is a working demo of our research, presented at the MIND 2025 Conference, Jaipur, available here: [MAVIS: End-to-End System for Image Provenance and Integrity Verification Using TEEs and Steganographic Techniques](https://link.springer.com/chapter/10.1007/978-3-032-31230-3_27).
 
 ### Key Features
 
